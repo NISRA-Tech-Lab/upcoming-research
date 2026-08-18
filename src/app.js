@@ -4,9 +4,14 @@ import {
 } from "./utils/publications.js";
 
 import {
+  loadOrganisations
+} from "./utils/organisations.js";
+
+import {
   initialisePublicationForm,
   openAddForm,
-  openEditForm
+  openEditForm,
+  setOrganisationOptions
 } from "./modules/publicationForm.js";
 
 const statusMessage = document.querySelector("#status-message");
@@ -15,7 +20,17 @@ let publications = [];
 
 async function init() {
   try {
-    publications = await loadPublications();
+    const [
+      loadedPublications,
+      organisations
+    ] = await Promise.all([
+      loadPublications(),
+      loadOrganisations()
+    ]);
+
+    publications = loadedPublications;
+
+    setOrganisationOptions(organisations);
 
     initialisePublicationForm({
       onSubmit: savePublication
@@ -26,6 +41,7 @@ async function init() {
       .addEventListener("click", openAddForm);
 
     render();
+
     statusMessage.textContent = "";
   } catch (error) {
     console.error(error);

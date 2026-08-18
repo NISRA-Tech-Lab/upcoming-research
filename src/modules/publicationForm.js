@@ -168,3 +168,22 @@ function getSelectedDateType() {
     'input[name="date-type"]:checked'
   ).value;
 }
+
+export function setOrganisationOptions(organisations) {
+  organisationInput.replaceChildren();
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Choose an organisation";
+
+  organisationInput.append(placeholder);
+
+  for (const organisation of organisations) {
+    const option = document.createElement("option");
+
+    option.value = organisation.code;
+    option.textContent = organisation.name;
+
+    organisationInput.append(option);
+  }
+}
