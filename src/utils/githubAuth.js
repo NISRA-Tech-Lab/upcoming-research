@@ -40,3 +40,33 @@ function generateRandomString() {
     value => value.toString(16).padStart(8, "0")
   ).join("");
 }
+
+export function getGitHubCallbackParams() {
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  const code = params.get("code");
+  const returnedState = params.get("state");
+
+  if (!code) {
+    return null;
+  }
+
+  const expectedState =
+    sessionStorage.getItem(STATE_KEY);
+
+  if (
+    !returnedState ||
+    returnedState !== expectedState
+  ) {
+    throw new Error(
+      "GitHub authentication state did not match."
+    );
+  }
+
+  return {
+    code,
+    state: returnedState
+  };
+}

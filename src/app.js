@@ -22,8 +22,9 @@ import {
   validatePublications
 } from "./utils/validation.js";
 
-import { 
-  loginWithGitHub 
+import {
+  loginWithGitHub,
+  getGitHubCallbackParams
 } from "./utils/githubAuth.js";
 
 const statusMessage = document.querySelector("#status-message");
@@ -35,6 +36,17 @@ let allowedOrganisationCodes = [];
 
 async function init() {
   try {
+
+    const callback =
+      getGitHubCallbackParams();
+
+    if (callback) {
+      console.log(
+        "GitHub OAuth callback received:",
+        callback
+      );
+    }
+
     const [
       loadedPublications,
       organisations
