@@ -16,11 +16,16 @@ import {
 
 import {
   stringifyCsv
-} from "./utils/csv.js"
+} from "./utils/csv.js";
+
+import {
+  validatePublications
+} from "./utils/validation.js";
 
 const statusMessage = document.querySelector("#status-message");
 
 let publications = [];
+let allowedOrganisationCodes = [];
 
 async function init() {
   try {
@@ -34,6 +39,12 @@ async function init() {
 
     publications = loadedPublications;
 
+    // Store organisation codes for full dataset validation
+    allowedOrganisationCodes = organisations.map(
+      organisation => organisation.code
+    );
+
+    // Populate the organisation dropdown
     setOrganisationOptions(organisations);
 
     initialisePublicationForm({
@@ -67,11 +78,27 @@ function render() {
 }
 
 function savePublication({ publication, editingIndex }) {
+  const updatedPublications = [...publications];
+
   if (editingIndex === null) {
-    publications.push(publication);
+    updatedPublications.push(publication);
   } else {
-    publications[editingIndex] = publication;
+    updatedPublications[editingIndex] = publication;
   }
+
+  const errors = validatePublications(
+    updatedPublications,
+    {
+      allowedOrganisations: allowedOrganisationCodes
+    }
+  );
+
+  if (errors.length > 0) {
+    alert(errors.join("\n"));
+    return;
+  }
+
+  publications = updatedPublications;
 
   render();
 
@@ -88,7 +115,23 @@ function removePublication(publication, index) {
     return;
   }
 
-  publications.splice(index, 1);
+  const updatedPublications = publications.filter(
+    (_, publicationIndex) => publicationIndex !== index
+  );
+
+  const errors = validatePublications(
+    updatedPublications,
+    {
+      allowedOrganisations: allowedOrganisationCodes
+    }
+  );
+
+  if (errors.length > 0) {
+    alert(errors.join("\n"));
+    return;
+  }
+
+  publications = updatedPublications;
 
   render();
 

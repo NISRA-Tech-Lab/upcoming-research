@@ -34,6 +34,7 @@ const releaseDatePreview =
 
 let editingIndex = null;
 let submitHandler = null;
+let allowedOrganisationCodes = [];
 
 export function initialisePublicationForm({ onSubmit }) {
   submitHandler = onSubmit;
@@ -155,12 +156,14 @@ function handleSubmit(event) {
     status: statusInput.value
   };
 
-  // Validate the constructed publication
   const dateType = getSelectedDateType();
 
   const errors = validatePublication(
     publication,
-    dateType
+    {
+      dateType,
+      allowedOrganisations: allowedOrganisationCodes
+    }
   );
 
   if (errors.length > 0) {
@@ -168,7 +171,6 @@ function handleSubmit(event) {
     return;
   }
 
-  // Only submit after all validation has passed
   submitHandler?.({
     publication,
     editingIndex
@@ -222,6 +224,10 @@ function getSelectedDateType() {
 }
 
 export function setOrganisationOptions(organisations) {
+  allowedOrganisationCodes = organisations.map(
+    organisation => organisation.code
+  );
+
   organisationInput.replaceChildren();
 
   const placeholder = document.createElement("option");
