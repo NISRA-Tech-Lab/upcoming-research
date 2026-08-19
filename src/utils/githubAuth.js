@@ -164,38 +164,3 @@ export async function getAuthenticatedUser() {
 
   return user;
 }
-
-export async function canAccessTargetRepository() {
-  const token = getAccessToken();
-
-  if (!token) {
-    return false;
-  }
-
-  const response = await fetch(
-    "https://api.github.com/repos/NISRA-Tech-Lab/latest-publications",
-    {
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${token}`,
-        "X-GitHub-Api-Version": "2022-11-28"
-      }
-    }
-  );
-
-  if (response.status === 404 || response.status === 403) {
-    return false;
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      `Unable to check repository access: HTTP ${response.status}`
-    );
-  }
-
-  const repository = await response.json();
-
-  return Boolean(
-    repository.permissions?.push
-  );
-}
