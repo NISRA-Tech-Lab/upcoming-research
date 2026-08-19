@@ -107,3 +107,35 @@ export async function exchangeCodeForToken(code) {
 
   return data.access_token;
 }
+
+export async function getAuthenticatedUser() {
+  const token = getAccessToken();
+
+  if (!token) {
+    return null;
+  }
+
+  const response = await fetch(
+    "https://api.github.com/user",
+    {
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "X-GitHub-Api-Version": "2022-11-28"
+      }
+    }
+  );
+
+  if (response.status === 401) {
+    logoutFromGitHub();
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to retrieve GitHub user: HTTP ${response.status}`
+    );
+  }
+
+  return response.json();
+}

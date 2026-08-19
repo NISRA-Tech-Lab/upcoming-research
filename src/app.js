@@ -25,12 +25,23 @@ import {
 import {
   loginWithGitHub,
   getGitHubCallbackParams,
-  exchangeCodeForToken
+  exchangeCodeForToken,
+  getAuthenticatedUser
 } from "./utils/githubAuth.js";
 
 const statusMessage = document.querySelector("#status-message");
 
-const loginButton = document.querySelector("#github-login");
+const loginButton =
+  document.querySelector("#github-login");
+
+const userContainer =
+  document.querySelector("#github-user");
+
+const usernameElement =
+  document.querySelector("#github-username");
+
+const addEntryButton =
+  document.querySelector("#add-entry");
 
 let publications = [];
 let allowedOrganisationCodes = [];
@@ -50,6 +61,19 @@ async function init() {
         "GitHub access token received:",
         Boolean(token)
       );
+    }
+
+    const user =
+      await getAuthenticatedUser();
+
+    if (user) {
+      loginButton.classList.add("d-none");
+      userContainer.classList.remove("d-none");
+
+      usernameElement.textContent =
+        `@${user.login}`;
+
+      addEntryButton.disabled = false;
     }
 
     const [
@@ -74,9 +98,10 @@ async function init() {
       onSubmit: savePublication
     });
 
-    document
-      .querySelector("#add-entry")
-      .addEventListener("click", openAddForm);
+    addEntryButton.addEventListener(
+      "click",
+      openAddForm
+    );
 
     render();
 
