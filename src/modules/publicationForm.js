@@ -1,4 +1,7 @@
-import { getDateValues } from "../utils/dates.js";
+import {
+  getDateValues,
+  parseDisplayDate
+} from "../utils/dates.js";
 
 const modalElement = document.querySelector("#publication-modal");
 const publicationModal = new bootstrap.Modal(modalElement);
@@ -75,11 +78,41 @@ export function openEditForm(publication, index) {
 
   modalTitle.textContent = "Edit publication";
 
+  publicationForm.reset();
+  publicationForm.classList.remove("was-validated");
+
   titleInput.value = publication.title;
   summaryInput.value = publication.summary;
   urlInput.value = publication.url;
   organisationInput.value = publication.org;
   statusInput.value = publication.status;
+
+  const parsedDate = parseDisplayDate(publication.display_date);
+
+  document.querySelector(
+    `input[name="date-type"][value="${parsedDate.type}"]`
+  ).checked = true;
+
+  exactDateInput.value = "";
+  monthInput.value = "";
+  rangeStartInput.value = "";
+  rangeEndInput.value = "";
+
+  if (parsedDate.type === "exact") {
+    exactDateInput.value = parsedDate.exactDate;
+  }
+
+  if (parsedDate.type === "month") {
+    monthInput.value = parsedDate.month;
+  }
+
+  if (parsedDate.type === "range") {
+    rangeStartInput.value = parsedDate.startMonth;
+    rangeEndInput.value = parsedDate.endMonth;
+  }
+
+  updateDateFields();
+  updateDatePreview();
 
   publicationModal.show();
 }

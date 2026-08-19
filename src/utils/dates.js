@@ -98,3 +98,90 @@ function toReleaseTimestamp(date) {
 
   return `${year}-${month}-${day}T09:30:00Z`;
 }
+
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+];
+
+export function parseDisplayDate(displayDate) {
+  if (!displayDate) {
+    throw new Error("Display date is empty.");
+  }
+
+  const rangeMatch = displayDate.match(
+    /^([A-Za-z]+)\s+(\d{4})\s+to\s+([A-Za-z]+)\s+(\d{4})$/
+  );
+
+  if (rangeMatch) {
+    const [, startMonthName, startYear, endMonthName, endYear] = rangeMatch;
+
+    return {
+      type: "range",
+      startMonth: toMonthInput(startMonthName, startYear),
+      endMonth: toMonthInput(endMonthName, endYear)
+    };
+  }
+
+  const monthMatch = displayDate.match(
+    /^([A-Za-z]+)\s+(\d{4})$/
+  );
+
+  if (monthMatch) {
+    const [, monthName, year] = monthMatch;
+
+    return {
+      type: "month",
+      month: toMonthInput(monthName, year)
+    };
+  }
+
+  const exactMatch = displayDate.match(
+    /^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/
+  );
+
+  if (exactMatch) {
+    const [, day, monthName, year] = exactMatch;
+
+    const monthIndex = getMonthIndex(monthName);
+
+    return {
+      type: "exact",
+      exactDate: [
+        year,
+        String(monthIndex + 1).padStart(2, "0"),
+        String(day).padStart(2, "0")
+      ].join("-")
+    };
+  }
+
+  throw new Error(`Unrecognised display date: ${displayDate}`);
+}
+
+function toMonthInput(monthName, year) {
+  const monthIndex = getMonthIndex(monthName);
+
+  return `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
+}
+
+function getMonthIndex(monthName) {
+  const monthIndex = MONTHS.findIndex(
+    month => month.toLowerCase() === monthName.toLowerCase()
+  );
+
+  if (monthIndex === -1) {
+    throw new Error(`Invalid month: ${monthName}`);
+  }
+
+  return monthIndex;
+}

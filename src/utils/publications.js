@@ -17,7 +17,10 @@ export async function loadPublications() {
 
 const publicationList = document.querySelector("#publication-list");
 
-export function renderPublications(publications) {
+export function renderPublications(
+  publications,
+  { onEdit, onRemove } = {}
+) {
   publicationList.replaceChildren();
 
   if (publications.length === 0) {
@@ -89,12 +92,16 @@ export function renderPublications(publications) {
       publication.summary;
 
     article
-      .querySelector(".edit-entry")
-      .addEventListener("click", () => openEditForm(index));
+  .querySelector(".edit-entry")
+  .addEventListener("click", () => {
+    onEdit?.(publication, index);
+  });
 
-    article
-      .querySelector(".remove-entry")
-      .addEventListener("click", () => removePublication(index));
+article
+  .querySelector(".remove-entry")
+  .addEventListener("click", () => {
+    onRemove?.(publication, index);
+  });
 
     publicationList.append(article);
   });
