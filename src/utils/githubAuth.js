@@ -164,3 +164,40 @@ export async function getAuthenticatedUser() {
 
   return user;
 }
+
+export async function hasVerifiedGovUkEmail() {
+  const token = getAccessToken();
+
+  if (!token) {
+    return false;
+  }
+
+  const response = await fetch(
+    "https://api.github.com/user/emails",
+    {
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "X-GitHub-Api-Version": "2022-11-28"
+      }
+    }
+  );
+
+  if (response.status === 401) {
+    logoutFromGitHub();
+    return false;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to retrieve GitHub email addresses: HTTP ${response.status}`
+    );
+  }
+
+  const emails = await response.json();
+
+  return emails.some(email =>
+    email.verified === true &&
+    email.email.toLowerCase().endsWith(".gov.uk")
+  );
+}
