@@ -19,7 +19,11 @@ const publicationList = document.querySelector("#publication-list");
 
 export function renderPublications(
   publications,
-  { onEdit, onRemove } = {}
+  {
+    onEdit,
+    onRemove,
+    canEdit = false
+  } = {}
 ) {
   publicationList.replaceChildren();
 
@@ -91,17 +95,21 @@ export function renderPublications(
     article.querySelector(".publication-summary").textContent =
       publication.summary;
 
-    article
-  .querySelector(".edit-entry")
-  .addEventListener("click", () => {
-    onEdit?.(publication, index);
-  });
+  const editButton = article.querySelector(".edit-entry");
+  const removeButton = article.querySelector(".remove-entry");
 
-article
-  .querySelector(".remove-entry")
-  .addEventListener("click", () => {
-    onRemove?.(publication, index);
-  });
+  editButton.disabled = !canEdit;
+  removeButton.disabled = !canEdit;
+
+  editButton
+    .addEventListener("click", () => {
+      onEdit?.(publication, index);
+    });
+
+  removeButton
+    .addEventListener("click", () => {
+      onRemove?.(publication, index);
+    });
 
     publicationList.append(article);
   });

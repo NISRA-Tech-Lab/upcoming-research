@@ -49,6 +49,7 @@ const addEntryButton =
 
 let publications = [];
 let allowedOrganisationCodes = [];
+let authenticatedUser = null;
 
 async function init() {
   try {
@@ -67,9 +68,9 @@ async function init() {
       );
     }
 
-    const user = await getAuthenticatedUser();
+    authenticatedUser = await getAuthenticatedUser();
 
-    updateAuthenticationUi(user);
+    updateAuthenticationUi(authenticatedUser);
 
     const [
       loadedPublications,
@@ -116,7 +117,8 @@ function render() {
     onEdit: (publication, index) => {
       openEditForm(publication, index);
     },
-    onRemove: removePublication
+    onRemove: removePublication,
+    canEdit: Boolean(authenticatedUser)
   });
 }
 
@@ -188,6 +190,8 @@ loginButton.addEventListener(
 );
 
 function updateAuthenticationUi(user) {
+  authenticatedUser = user;
+
   if (user) {
     loginButton.classList.add("d-none");
     userContainer.classList.remove("d-none");
@@ -196,15 +200,15 @@ function updateAuthenticationUi(user) {
       `@${user.login}`;
 
     addEntryButton.disabled = false;
+  } else {
+    loginButton.classList.remove("d-none");
+    userContainer.classList.add("d-none");
 
-    return;
+    usernameElement.textContent = "";
+    addEntryButton.disabled = true;
   }
 
-  loginButton.classList.remove("d-none");
-  userContainer.classList.add("d-none");
-
-  usernameElement.textContent = "";
-  addEntryButton.disabled = true;
+  render();
 }
 
 logoutButton.addEventListener(
