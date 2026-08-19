@@ -201,3 +201,39 @@ export async function hasVerifiedGovUkEmail() {
     email.email.toLowerCase().endsWith(".gov.uk")
   );
 }
+
+const SUBMIT_ENDPOINT =
+  "https://upcoming-research-auth.brian-quinn.workers.dev/submit";
+
+export async function testSubmitAuthorisation() {
+  const token = getAccessToken();
+
+  if (!token) {
+    throw new Error("No GitHub access token available.");
+  }
+
+  const response = await fetch(
+    SUBMIT_ENDPOINT,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        test: true
+      })
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.error ??
+      `Submit authorisation test failed: HTTP ${response.status}`
+    );
+  }
+
+  return data;
+}

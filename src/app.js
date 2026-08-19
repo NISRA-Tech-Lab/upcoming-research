@@ -28,7 +28,8 @@ import {
   exchangeCodeForToken,
   getAuthenticatedUser,
   logoutFromGitHub,
-  hasVerifiedGovUkEmail
+  hasVerifiedGovUkEmail,
+  testSubmitAuthorisation
 } from "./utils/githubAuth.js";
 
 const statusMessage = document.querySelector("#status-message");
@@ -75,6 +76,7 @@ async function init() {
       await getAuthenticatedUser();
 
     let isAuthorised = false;
+    
 
     if (authenticatedUser) {
       isAuthorised =
@@ -98,6 +100,16 @@ async function init() {
 
         setOrganisationOptions(organisations);
       }
+    }
+
+    if (authenticatedUser && isAuthorised) {
+      const submitTest =
+        await testSubmitAuthorisation();
+
+      console.log(
+        "Worker submit authorisation:",
+        submitTest
+      );
     }
 
     updateAuthenticationUi(
