@@ -27,7 +27,8 @@ import {
   getGitHubCallbackParams,
   exchangeCodeForToken,
   getAuthenticatedUser,
-  logoutFromGitHub
+  logoutFromGitHub,
+  hasVerifiedGovUkEmail
 } from "./utils/githubAuth.js";
 
 const statusMessage = document.querySelector("#status-message");
@@ -68,9 +69,20 @@ async function init() {
       );
     }
 
-    authenticatedUser = await getAuthenticatedUser();
+    authenticatedUser =
+      await getAuthenticatedUser();
 
-    updateAuthenticationUi(authenticatedUser);
+    let isAuthorised = false;
+
+    if (authenticatedUser) {
+      isAuthorised =
+        await hasVerifiedGovUkEmail();
+    }
+
+    updateAuthenticationUi(
+      authenticatedUser,
+      isAuthorised
+    );
 
     const [
       loadedPublications,
@@ -189,17 +201,26 @@ loginButton.addEventListener(
   loginWithGitHub
 );
 
-function updateAuthenticationUi(user) {
-  authenticatedUser = user;
+function updateAuthenticationUi(
+  user,
+  isAuthorised = false
+) {
+  authenticatedUser =
+    user && isAuthorised
+      ? user
+      : null;
 
   if (user) {
     loginButton.classList.add("d-none");
     userContainer.classList.remove("d-none");
 
     usernameElement.textContent =
-      `@${user.login}`;
+      isAuthorised
+        ? `@${user.login}`
+        : `@${user.login} — no edit access`;
 
-    addEntryButton.disabled = false;
+    addEntryButton.disabled =
+      !isAuthorised;
   } else {
     loginButton.classList.remove("d-none");
     userContainer.classList.add("d-none");
