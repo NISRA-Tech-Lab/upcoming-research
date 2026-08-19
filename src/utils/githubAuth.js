@@ -105,11 +105,24 @@ export async function exchangeCodeForToken(code) {
     data.access_token
   );
 
+  sessionStorage.removeItem(STATE_KEY);
+
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname
+  );
+
   return data.access_token;
 }
 
 export async function getAuthenticatedUser() {
   const token = getAccessToken();
+
+  console.log(
+    "Token available to getAuthenticatedUser:",
+    Boolean(token)
+  );
 
   if (!token) {
     return null;
@@ -126,6 +139,11 @@ export async function getAuthenticatedUser() {
     }
   );
 
+  console.log(
+    "GitHub /user response status:",
+    response.status
+  );
+
   if (response.status === 401) {
     logoutFromGitHub();
     return null;
@@ -137,5 +155,12 @@ export async function getAuthenticatedUser() {
     );
   }
 
-  return response.json();
+  const user = await response.json();
+
+  console.log(
+    "Authenticated GitHub user:",
+    user.login
+  );
+
+  return user;
 }
