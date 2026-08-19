@@ -24,7 +24,8 @@ import {
 
 import {
   loginWithGitHub,
-  getGitHubCallbackParams
+  getGitHubCallbackParams,
+  exchangeCodeForToken
 } from "./utils/githubAuth.js";
 
 const statusMessage = document.querySelector("#status-message");
@@ -41,9 +42,13 @@ async function init() {
       getGitHubCallbackParams();
 
     if (callback) {
+      const token = await exchangeCodeForToken(
+        callback.code
+      );
+
       console.log(
-        "GitHub OAuth callback received:",
-        callback
+        "GitHub access token received:",
+        Boolean(token)
       );
     }
 

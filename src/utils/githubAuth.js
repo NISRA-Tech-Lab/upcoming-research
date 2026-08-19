@@ -6,6 +6,8 @@ const REDIRECT_URI =
 const TOKEN_KEY = "github_access_token";
 const STATE_KEY = "github_oauth_state";
 
+const AUTH_ENDPOINT = "https://upcoming-research-auth.brian-quinn.workers.dev/";
+
 export function loginWithGitHub() {
   const state = generateRandomString();
 
@@ -69,4 +71,39 @@ export function getGitHubCallbackParams() {
     code,
     state: returnedState
   };
+}
+
+export async function exchangeCodeForToken(code) {
+  const response = await fetch(AUTH_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      code,
+      redirect_uri: REDIRECT_URI
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.error ??
+      "Unable to complete GitHub authentication."
+    );
+  }
+
+  if (!data.access_token) {
+    throw new Error(
+      "GitHub did not return an access token."
+    );
+  }
+
+  sessionStorage.setItem(
+    TOKEN_KEY,
+    data.access_token
+  );
+
+  return data.access_token;
 }
