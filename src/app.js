@@ -27,7 +27,8 @@ import {
   getGitHubCallbackParams,
   exchangeCodeForToken,
   getAuthenticatedUser,
-  logoutFromGitHub
+  logoutFromGitHub,
+  canAccessTargetRepository
 } from "./utils/githubAuth.js";
 
 const statusMessage = document.querySelector("#status-message");
@@ -70,7 +71,17 @@ async function init() {
 
     authenticatedUser = await getAuthenticatedUser();
 
-    updateAuthenticationUi(authenticatedUser);
+    let canEditRepository = false;
+
+    if (authenticatedUser) {
+      canEditRepository =
+        await canAccessTargetRepository();
+    }
+
+    updateAuthenticationUi(
+      authenticatedUser,
+      canEditRepository
+    );
 
     const [
       loadedPublications,
@@ -189,10 +200,14 @@ loginButton.addEventListener(
   loginWithGitHub
 );
 
-function updateAuthenticationUi(user) {
-  authenticatedUser = user;
+function updateAuthenticationUi(
+  user,
+  canEditRepository = false
+) {
+  authenticatedUser =
+    canEditRepository ? user : null;
 
-  if (user) {
+  if (user && canEditRepository) {
     loginButton.classList.add("d-none");
     userContainer.classList.remove("d-none");
 
@@ -201,10 +216,21 @@ function updateAuthenticationUi(user) {
 
     addEntryButton.disabled = false;
   } else {
-    loginButton.classList.remove("d-none");
-    userContainer.classList.add("d-none");
+    loginButton.classList.toggle(
+      "d-none",
+      Boolean(user)
+    );
 
-    usernameElement.textContent = "";
+    userContainer.classList.toggle(
+      "d-none",
+      !user
+    );
+
+    usernameElement.textContent =
+      user
+        ? `@${user.login} — no edit access`
+        : "";
+
     addEntryButton.disabled = true;
   }
 
