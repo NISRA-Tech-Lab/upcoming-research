@@ -26,7 +26,8 @@ import {
   loginWithGitHub,
   getGitHubCallbackParams,
   exchangeCodeForToken,
-  getAuthenticatedUser
+  getAuthenticatedUser,
+  logoutFromGitHub
 } from "./utils/githubAuth.js";
 
 const statusMessage = document.querySelector("#status-message");
@@ -39,6 +40,9 @@ const userContainer =
 
 const usernameElement =
   document.querySelector("#github-username");
+
+const logoutButton =
+  document.querySelector("#github-logout");
 
 const addEntryButton =
   document.querySelector("#add-entry");
@@ -63,18 +67,9 @@ async function init() {
       );
     }
 
-    const user =
-      await getAuthenticatedUser();
+    const user = await getAuthenticatedUser();
 
-    if (user) {
-      loginButton.classList.add("d-none");
-      userContainer.classList.remove("d-none");
-
-      usernameElement.textContent =
-        `@${user.login}`;
-
-      addEntryButton.disabled = false;
-    }
+    updateAuthenticationUi(user);
 
     const [
       loadedPublications,
@@ -190,6 +185,34 @@ function removePublication(publication, index) {
 loginButton.addEventListener(
   "click",
   loginWithGitHub
+);
+
+function updateAuthenticationUi(user) {
+  if (user) {
+    loginButton.classList.add("d-none");
+    userContainer.classList.remove("d-none");
+
+    usernameElement.textContent =
+      `@${user.login}`;
+
+    addEntryButton.disabled = false;
+
+    return;
+  }
+
+  loginButton.classList.remove("d-none");
+  userContainer.classList.add("d-none");
+
+  usernameElement.textContent = "";
+  addEntryButton.disabled = true;
+}
+
+logoutButton.addEventListener(
+  "click",
+  () => {
+    logoutFromGitHub();
+    updateAuthenticationUi(null);
+  }
 );
 
 init();
