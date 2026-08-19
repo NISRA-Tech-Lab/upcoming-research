@@ -48,13 +48,15 @@ const logoutButton =
 const addEntryButton =
   document.querySelector("#add-entry");
 
+const publicationSection =
+  document.querySelector("#publication-section");
+
 let publications = [];
 let allowedOrganisationCodes = [];
 let authenticatedUser = null;
 
 async function init() {
   try {
-
     const callback =
       getGitHubCallbackParams();
 
@@ -77,30 +79,31 @@ async function init() {
     if (authenticatedUser) {
       isAuthorised =
         await hasVerifiedGovUkEmail();
+
+      if (isAuthorised) {
+        const [
+          loadedPublications,
+          organisations
+        ] = await Promise.all([
+          loadPublications(),
+          loadOrganisations()
+        ]);
+
+        publications = loadedPublications;
+
+        allowedOrganisationCodes =
+          organisations.map(
+            organisation => organisation.code
+          );
+
+        setOrganisationOptions(organisations);
+      }
     }
 
     updateAuthenticationUi(
       authenticatedUser,
       isAuthorised
     );
-
-    const [
-      loadedPublications,
-      organisations
-    ] = await Promise.all([
-      loadPublications(),
-      loadOrganisations()
-    ]);
-
-    publications = loadedPublications;
-
-    // Store organisation codes for full dataset validation
-    allowedOrganisationCodes = organisations.map(
-      organisation => organisation.code
-    );
-
-    // Populate the organisation dropdown
-    setOrganisationOptions(organisations);
 
     initialisePublicationForm({
       onSubmit: savePublication
@@ -210,23 +213,33 @@ function updateAuthenticationUi(
       ? user
       : null;
 
-  if (user) {
+  if (user && isAuthorised) {
     loginButton.classList.add("d-none");
     userContainer.classList.remove("d-none");
 
     usernameElement.textContent =
-      isAuthorised
-        ? `@${user.login}`
-        : `@${user.login} — no edit access`;
+      `@${user.login}`;
 
-    addEntryButton.disabled =
-      !isAuthorised;
+    addEntryButton.disabled = false;
+    publicationSection.classList.remove("d-none");
   } else {
-    loginButton.classList.remove("d-none");
-    userContainer.classList.add("d-none");
+    loginButton.classList.toggle(
+      "d-none",
+      Boolean(user)
+    );
 
-    usernameElement.textContent = "";
+    userContainer.classList.toggle(
+      "d-none",
+      !user
+    );
+
+    usernameElement.textContent =
+      user
+        ? `@${user.login} — no edit access`
+        : "";
+
     addEntryButton.disabled = true;
+    publicationSection.classList.add("d-none");
   }
 
   render();

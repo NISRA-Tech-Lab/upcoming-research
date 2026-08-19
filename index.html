@@ -59,24 +59,27 @@
 
   <main class="container py-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="h4 mb-0">Current entries</h2>
+    <section id="publication-section" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 mb-0">Current entries</h2>
 
-      <button
-        id="add-entry"
-        type="button"
-        class="btn btn-primary"
-        disabled
-      >
-        Add publication
-      </button>
-    </div>
+        <button
+          id="add-entry"
+          type="button"
+          class="btn btn-primary"
+          disabled
+        >
+          Add publication
+        </button>
+      </div>
 
-    <div id="status-message" class="mb-3">
-      Loading publications…
-    </div>
+      <div id="status-message" class="mb-3">
+        Loading publications…
+      </div>
 
-    <div id="publication-list"></div>
+      <div id="publication-list"></div>
+
+    </section>
 
     <div
   class="modal fade"
