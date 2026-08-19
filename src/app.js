@@ -22,7 +22,13 @@ import {
   validatePublications
 } from "./utils/validation.js";
 
+import { 
+  loginWithGitHub 
+} from "./utils/githubAuth.js";
+
 const statusMessage = document.querySelector("#status-message");
+
+const loginButton = document.querySelector("#github-login");
 
 let publications = [];
 let allowedOrganisationCodes = [];
@@ -138,5 +144,10 @@ function removePublication(publication, index) {
   const csv = stringifyCsv(publications);
   console.log(csv);
 }
+
+loginButton.addEventListener(
+  "click",
+  loginWithGitHub
+);
 
 init();
