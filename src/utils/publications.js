@@ -86,7 +86,7 @@ export function renderPublications(
       publication.org;
 
     article.querySelector(".publication-status").textContent =
-      publication.status;
+      formatStatus(publication.status);
 
     article.querySelector(".publication-summary").textContent =
       publication.summary;
@@ -105,4 +105,8 @@ article
 
     publicationList.append(article);
   });
+}
+
+function formatStatus(status) {
+  return status.charAt(0).toUpperCase() + status.slice(1);
 }

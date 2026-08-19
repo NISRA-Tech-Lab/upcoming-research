@@ -3,6 +3,8 @@ import {
   parseDisplayDate
 } from "../utils/dates.js";
 
+import { validatePublication } from "../utils/validation.js";
+
 const modalElement = document.querySelector("#publication-modal");
 const publicationModal = new bootstrap.Modal(modalElement);
 
@@ -42,6 +44,7 @@ export function initialisePublicationForm({ onSubmit }) {
       input.addEventListener("change", () => {
         updateDateFields();
         updateDatePreview();
+        updateStatusOptions()
       });
     });
 
@@ -69,6 +72,7 @@ export function openAddForm() {
 
   updateDateFields();
   updateDatePreview();
+  updateStatusOptions();
 
   publicationModal.show();
 }
@@ -113,6 +117,7 @@ export function openEditForm(publication, index) {
 
   updateDateFields();
   updateDatePreview();
+  updateStatusOptions();
 
   publicationModal.show();
 }
@@ -150,6 +155,20 @@ function handleSubmit(event) {
     status: statusInput.value
   };
 
+  // Validate the constructed publication
+  const dateType = getSelectedDateType();
+
+  const errors = validatePublication(
+    publication,
+    dateType
+  );
+
+  if (errors.length > 0) {
+    alert(errors.join("\n"));
+    return;
+  }
+
+  // Only submit after all validation has passed
   submitHandler?.({
     publication,
     editingIndex
@@ -218,5 +237,20 @@ export function setOrganisationOptions(organisations) {
     option.textContent = organisation.name;
 
     organisationInput.append(option);
+  }
+}
+
+function updateStatusOptions() {
+  const dateType = getSelectedDateType();
+
+  const confirmedOption = [...statusInput.options]
+    .find(option => option.value === "confirmed");
+
+  const confirmedAllowed = dateType === "exact";
+
+  confirmedOption.disabled = !confirmedAllowed;
+
+  if (!confirmedAllowed && statusInput.value === "confirmed") {
+    statusInput.value = "provisional";
   }
 }

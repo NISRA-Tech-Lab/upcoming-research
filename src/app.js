@@ -14,6 +14,10 @@ import {
   setOrganisationOptions
 } from "./modules/publicationForm.js";
 
+import {
+  stringifyCsv
+} from "./utils/csv.js"
+
 const statusMessage = document.querySelector("#status-message");
 
 let publications = [];
@@ -70,6 +74,9 @@ function savePublication({ publication, editingIndex }) {
   }
 
   render();
+
+  const csv = stringifyCsv(publications);
+  console.log(csv);
 }
 
 function removePublication(publication, index) {
@@ -82,7 +89,11 @@ function removePublication(publication, index) {
   }
 
   publications.splice(index, 1);
+
   render();
+
+  const csv = stringifyCsv(publications);
+  console.log(csv);
 }
 
 init();

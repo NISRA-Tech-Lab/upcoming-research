@@ -52,3 +52,49 @@ export function parseCsv(csv) {
     )
   );
 }
+
+const CSV_HEADERS = [
+  "title",
+  "summary",
+  "url",
+  "release_date",
+  "display_date",
+  "org",
+  "updated",
+  "status"
+];
+
+export function stringifyCsv(publications) {
+  const rows = [
+    CSV_HEADERS,
+    ...publications.map(publication =>
+      CSV_HEADERS.map(header => publication[header] ?? "")
+    )
+  ];
+
+  return rows
+    .map(row =>
+      row
+        .map(escapeCsvField)
+        .join(",")
+    )
+    .join("\n") + "\n";
+}
+
+function escapeCsvField(value) {
+  const stringValue = String(value ?? "");
+
+  const needsQuotes =
+    stringValue.includes(",") ||
+    stringValue.includes('"') ||
+    stringValue.includes("\n") ||
+    stringValue.includes("\r");
+
+  if (!needsQuotes) {
+    return stringValue;
+  }
+
+  const escapedValue = stringValue.replaceAll('"', '""');
+
+  return `"${escapedValue}"`;
+}
