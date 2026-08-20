@@ -353,6 +353,7 @@ async function submitPendingChanges() {
     stringifyCsv(publications);
 
   submitChangesButton.disabled = true;
+  discardChangesButton.disabled = true;
 
   try {
     const result = await submitChange({
@@ -360,19 +361,32 @@ async function submitPendingChanges() {
       changes: pendingChanges
     });
 
-    console.log(
-      "Submission dry run:",
-      result
-    );
+    pendingChanges = [];
 
-    alert(
-      `${pendingChanges.length} change(s) are ready for review.`
-    );
+    render();
+
+    const openPullRequest =
+      window.confirm(
+        `Changes submitted successfully as pull request #${result.pullRequest.number}.\n\nOpen the pull request on GitHub?`
+      );
+
+    if (openPullRequest) {
+      window.open(
+        result.pullRequest.url,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }
   } catch (error) {
     console.error(error);
-    alert(error.message);
+
+    alert(
+      error.message ??
+      "Unable to submit changes for review."
+    );
   } finally {
     submitChangesButton.disabled = false;
+    discardChangesButton.disabled = false;
   }
 }
 
