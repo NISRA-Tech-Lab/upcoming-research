@@ -152,7 +152,9 @@ function handleSubmit(event) {
     release_date: dateValues.releaseDate,
     display_date: dateValues.displayDate,
     org: organisationInput.value,
-    updated: new Date().toISOString(),
+    updated: new Date()
+    .toISOString()
+    .replace(/\.\d{3}Z$/, "Z"),
     status: statusInput.value
   };
 
