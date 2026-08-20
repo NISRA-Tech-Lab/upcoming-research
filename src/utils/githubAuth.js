@@ -207,8 +207,7 @@ const SUBMIT_ENDPOINT =
 
 export async function submitChange({
   csv,
-  action,
-  title
+  changes
 }) {
   const token = getAccessToken();
 
@@ -226,8 +225,7 @@ export async function submitChange({
       },
       body: JSON.stringify({
         csv,
-        action,
-        title
+        changes
       })
     }
   );

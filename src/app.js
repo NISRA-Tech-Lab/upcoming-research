@@ -343,4 +343,42 @@ discardChangesButton.addEventListener(
   discardChanges
 );
 
+async function submitPendingChanges() {
+  if (pendingChanges.length === 0) {
+    alert("There are no pending changes to submit.");
+    return;
+  }
+
+  const csv =
+    stringifyCsv(publications);
+
+  submitChangesButton.disabled = true;
+
+  try {
+    const result = await submitChange({
+      csv,
+      changes: pendingChanges
+    });
+
+    console.log(
+      "Submission dry run:",
+      result
+    );
+
+    alert(
+      `${pendingChanges.length} change(s) are ready for review.`
+    );
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  } finally {
+    submitChangesButton.disabled = false;
+  }
+}
+
+submitChangesButton.addEventListener(
+  "click",
+  submitPendingChanges
+);
+
 init();
