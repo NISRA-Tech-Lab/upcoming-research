@@ -310,4 +310,37 @@ function renderPendingChanges() {
   }
 }
 
+async function discardChanges() {
+  const confirmed = window.confirm(
+    "Discard all pending changes?"
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    const loadedPublications =
+      await loadPublications();
+
+    publications =
+      loadedPublications;
+
+    pendingChanges = [];
+
+    render();
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Unable to reload the current publications."
+    );
+  }
+}
+
+discardChangesButton.addEventListener(
+  "click",
+  discardChanges
+);
+
 init();
