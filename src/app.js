@@ -62,10 +62,9 @@ async function init() {
       getGitHubCallbackParams();
 
     if (callback) {
-      const token = await exchangeCodeForToken(
+      await exchangeCodeForToken(
         callback.code
       );
-
     }
 
     authenticatedUser =
@@ -96,12 +95,6 @@ async function init() {
 
         setOrganisationOptions(organisations);
       }
-    }
-
-    if (authenticatedUser && isAuthorised) {
-      const submitTest =
-        await testSubmitAuthorisation();
-
     }
 
     updateAuthenticationUi(

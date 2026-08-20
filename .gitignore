@@ -1,5 +1,2 @@
-client-id.txt
-client-secret.txt
-app-id.txt
-installation-id.txt
+*.txt
 *.pem
