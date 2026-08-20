@@ -29,7 +29,7 @@ import {
   getAuthenticatedUser,
   logoutFromGitHub,
   hasVerifiedGovUkEmail,
-  testSubmitAuthorisation
+  submitChange
 } from "./utils/githubAuth.js";
 
 const statusMessage = document.querySelector("#status-message");
@@ -66,10 +66,6 @@ async function init() {
         callback.code
       );
 
-      console.log(
-        "GitHub access token received:",
-        Boolean(token)
-      );
     }
 
     authenticatedUser =
@@ -106,10 +102,6 @@ async function init() {
       const submitTest =
         await testSubmitAuthorisation();
 
-      console.log(
-        "Worker submit authorisation:",
-        submitTest
-      );
     }
 
     updateAuthenticationUi(
@@ -149,8 +141,16 @@ function render() {
   });
 }
 
-function savePublication({ publication, editingIndex }) {
+async function savePublication({
+  publication,
+  editingIndex
+}) {
   const updatedPublications = [...publications];
+
+  const action =
+    editingIndex === null
+      ? "add"
+      : "edit";
 
   if (editingIndex === null) {
     updatedPublications.push(publication);
@@ -161,7 +161,8 @@ function savePublication({ publication, editingIndex }) {
   const errors = validatePublications(
     updatedPublications,
     {
-      allowedOrganisations: allowedOrganisationCodes
+      allowedOrganisations:
+        allowedOrganisationCodes
     }
   );
 
@@ -170,15 +171,33 @@ function savePublication({ publication, editingIndex }) {
     return;
   }
 
-  publications = updatedPublications;
+  const csv =
+    stringifyCsv(updatedPublications);
 
-  render();
+  try {
+    const result = await submitChange({
+      csv,
+      action,
+      title: publication.title
+    });
 
-  const csv = stringifyCsv(publications);
-  console.log(csv);
+    console.log(
+      "Submission dry run:",
+      result
+    );
+
+    publications = updatedPublications;
+    render();
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
 }
 
-function removePublication(publication, index) {
+async function removePublication(
+  publication,
+  index
+) {
   const confirmed = window.confirm(
     `Remove "${publication.title}"?`
   );
@@ -187,14 +206,17 @@ function removePublication(publication, index) {
     return;
   }
 
-  const updatedPublications = publications.filter(
-    (_, publicationIndex) => publicationIndex !== index
-  );
+  const updatedPublications =
+    publications.filter(
+      (_, publicationIndex) =>
+        publicationIndex !== index
+    );
 
   const errors = validatePublications(
     updatedPublications,
     {
-      allowedOrganisations: allowedOrganisationCodes
+      allowedOrganisations:
+        allowedOrganisationCodes
     }
   );
 
@@ -203,12 +225,27 @@ function removePublication(publication, index) {
     return;
   }
 
-  publications = updatedPublications;
+  const csv =
+    stringifyCsv(updatedPublications);
 
-  render();
+  try {
+    const result = await submitChange({
+      csv,
+      action: "remove",
+      title: publication.title
+    });
 
-  const csv = stringifyCsv(publications);
-  console.log(csv);
+    console.log(
+      "Submission dry run:",
+      result
+    );
+
+    publications = updatedPublications;
+    render();
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
 }
 
 loginButton.addEventListener(

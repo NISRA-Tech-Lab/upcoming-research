@@ -205,7 +205,11 @@ export async function hasVerifiedGovUkEmail() {
 const SUBMIT_ENDPOINT =
   "https://upcoming-research-auth.brian-quinn.workers.dev/submit";
 
-export async function testSubmitAuthorisation() {
+export async function submitChange({
+  csv,
+  action,
+  title
+}) {
   const token = getAccessToken();
 
   if (!token) {
@@ -221,7 +225,9 @@ export async function testSubmitAuthorisation() {
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
-        test: true
+        csv,
+        action,
+        title
       })
     }
   );
@@ -231,7 +237,7 @@ export async function testSubmitAuthorisation() {
   if (!response.ok) {
     throw new Error(
       data.error ??
-      `Submit authorisation test failed: HTTP ${response.status}`
+      `Submission failed: HTTP ${response.status}`
     );
   }
 
