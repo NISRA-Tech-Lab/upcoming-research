@@ -1,7 +1,7 @@
 import { parseCsv } from "./csv.js";
 
-const CSV_URL =
-  "https://raw.githubusercontent.com/NISRA-Tech-Lab/latest-publications/refs/heads/main/upcoming-research.csv";
+const CONTENTS_URL =
+  "https://api.github.com/repos/NISRA-Tech-Lab/latest-publications/contents/upcoming-research.csv?ref=main";
 
 export async function loadPublications() {
   const response = await fetch(
