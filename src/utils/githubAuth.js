@@ -187,8 +187,7 @@ export async function hasVerifiedGovUkEmail() {
   );
 }
 
-const SUBMIT_ENDPOINT =
-  "https://upcoming-research-auth.brian-quinn.workers.dev/submit";
+const SUBMIT_ENDPOINT = `${AUTH_ENDPOINT}submit`;
 
 export async function submitChange({
   csv,
