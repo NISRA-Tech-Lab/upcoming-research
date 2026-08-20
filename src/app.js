@@ -52,9 +52,22 @@ const addEntryButton =
 const publicationSection =
   document.querySelector("#publication-section");
 
+const pendingChangesPanel =
+  document.querySelector("#pending-changes-panel");
+
+const pendingChangesList =
+  document.querySelector("#pending-changes-list");
+
+const submitChangesButton =
+  document.querySelector("#submit-changes");
+
+const discardChangesButton =
+  document.querySelector("#discard-changes");
+
 let publications = [];
 let allowedOrganisationCodes = [];
 let authenticatedUser = null;
+let pendingChanges = [];
 
 async function init() {
   try {
@@ -132,9 +145,10 @@ function render() {
     onRemove: removePublication,
     canEdit: Boolean(authenticatedUser)
   });
+  renderPendingChanges();
 }
 
-async function savePublication({
+function savePublication({
   publication,
   editingIndex
 }) {
@@ -164,30 +178,17 @@ async function savePublication({
     return;
   }
 
-  const csv =
-    stringifyCsv(updatedPublications);
+  publications = updatedPublications;
 
-  try {
-    const result = await submitChange({
-      csv,
-      action,
-      title: publication.title
-    });
+  pendingChanges.push({
+    action,
+    title: publication.title
+  });
 
-    console.log(
-      "Submission dry run:",
-      result
-    );
-
-    publications = updatedPublications;
-    render();
-  } catch (error) {
-    console.error(error);
-    alert(error.message);
-  }
+  render();
 }
 
-async function removePublication(
+function removePublication(
   publication,
   index
 ) {
@@ -218,27 +219,14 @@ async function removePublication(
     return;
   }
 
-  const csv =
-    stringifyCsv(updatedPublications);
+  publications = updatedPublications;
 
-  try {
-    const result = await submitChange({
-      csv,
-      action: "remove",
-      title: publication.title
-    });
+  pendingChanges.push({
+    action: "remove",
+    title: publication.title
+  });
 
-    console.log(
-      "Submission dry run:",
-      result
-    );
-
-    publications = updatedPublications;
-    render();
-  } catch (error) {
-    console.error(error);
-    alert(error.message);
-  }
+  render();
 }
 
 loginButton.addEventListener(
@@ -294,5 +282,32 @@ logoutButton.addEventListener(
     updateAuthenticationUi(null);
   }
 );
+
+function renderPendingChanges() {
+  pendingChangesList.replaceChildren();
+
+  if (pendingChanges.length === 0) {
+    pendingChangesPanel.classList.add("d-none");
+    return;
+  }
+
+  pendingChangesPanel.classList.remove("d-none");
+
+  for (const change of pendingChanges) {
+    const item = document.createElement("li");
+
+    const prefix =
+      change.action === "add"
+        ? "Added"
+        : change.action === "edit"
+          ? "Edited"
+          : "Removed";
+
+    item.textContent =
+      `${prefix}: ${change.title}`;
+
+    pendingChangesList.append(item);
+  }
+}
 
 init();
