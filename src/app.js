@@ -64,6 +64,9 @@ const submitChangesButton =
 const discardChangesButton =
   document.querySelector("#discard-changes");
 
+const submissionStatus =
+  document.querySelector("#submission-status");
+
 let publications = [];
 let allowedOrganisationCodes = [];
 let authenticatedUser = null;
@@ -355,6 +358,9 @@ async function submitPendingChanges() {
   submitChangesButton.disabled = true;
   discardChangesButton.disabled = true;
 
+  submissionStatus.textContent =
+    "Submitting changes...";
+
   try {
     await submitChange({
       csv,
@@ -365,11 +371,15 @@ async function submitPendingChanges() {
 
     render();
 
+    submissionStatus.textContent = "";
+
     alert(
       "Your changes have been submitted for review."
     );
   } catch (error) {
     console.error(error);
+
+    submissionStatus.textContent = "";
 
     alert(
       error.message ??
