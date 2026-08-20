@@ -71,6 +71,7 @@ let publications = [];
 let allowedOrganisationCodes = [];
 let authenticatedUser = null;
 let pendingChanges = [];
+let sourceCsvSha = null;
 
 async function init() {
   try {
@@ -95,14 +96,18 @@ async function init() {
 
       if (isAuthorised) {
         const [
-          loadedPublications,
+          publicationData,
           organisations
         ] = await Promise.all([
           loadPublications(),
           loadOrganisations()
         ]);
 
-        publications = loadedPublications;
+        publications =
+          publicationData.publications;
+
+        sourceCsvSha =
+          publicationData.sha;
 
         allowedOrganisationCodes =
           organisations.map(
@@ -323,11 +328,14 @@ async function discardChanges() {
   }
 
   try {
-    const loadedPublications =
+    const publicationData =
       await loadPublications();
 
     publications =
-      loadedPublications;
+      publicationData.publications;
+
+    sourceCsvSha =
+      publicationData.sha;
 
     pendingChanges = [];
 
@@ -364,7 +372,8 @@ async function submitPendingChanges() {
   try {
     await submitChange({
       csv,
-      changes: pendingChanges
+      changes: pendingChanges,
+      sourceSha: sourceCsvSha
     });
 
     pendingChanges = [];

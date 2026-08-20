@@ -192,12 +192,15 @@ const SUBMIT_ENDPOINT =
 
 export async function submitChange({
   csv,
-  changes
+  changes,
+  sourceSha
 }) {
   const token = getAccessToken();
 
   if (!token) {
-    throw new Error("No GitHub access token available.");
+    throw new Error(
+      "No GitHub access token available."
+    );
   }
 
   const response = await fetch(
@@ -205,17 +208,21 @@ export async function submitChange({
     {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+        "Content-Type":
+          "application/json",
+        Authorization:
+          `Bearer ${token}`
       },
       body: JSON.stringify({
         csv,
-        changes
+        changes,
+        sourceSha
       })
     }
   );
 
-  const data = await response.json();
+  const data =
+    await response.json();
 
   if (!response.ok) {
     throw new Error(

@@ -4,15 +4,44 @@ const CSV_URL =
   "https://raw.githubusercontent.com/NISRA-Tech-Lab/latest-publications/refs/heads/main/upcoming-research.csv";
 
 export async function loadPublications() {
-  const response = await fetch(CSV_URL);
+  const response = await fetch(
+    CONTENTS_URL,
+    {
+      headers: {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      }
+    }
+  );
 
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+    throw new Error(
+      `Unable to load publications: HTTP ${response.status}`
+    );
   }
 
-  const csv = await response.text();
+  const data = await response.json();
 
-  return parseCsv(csv);
+  const csv = decodeBase64Utf8(data.content);
+
+  return {
+    publications: parseCsv(csv),
+    sha: data.sha
+  };
+}
+
+function decodeBase64Utf8(value) {
+  const binary = atob(
+    value.replace(/\n/g, "")
+  );
+
+  const bytes =
+    Uint8Array.from(
+      binary,
+      char => char.charCodeAt(0)
+    );
+
+  return new TextDecoder().decode(bytes);
 }
 
 const publicationList = document.querySelector("#publication-list");
