@@ -356,7 +356,7 @@ async function submitPendingChanges() {
   discardChangesButton.disabled = true;
 
   try {
-    const result = await submitChange({
+    await submitChange({
       csv,
       changes: pendingChanges
     });
@@ -365,18 +365,9 @@ async function submitPendingChanges() {
 
     render();
 
-    const openPullRequest =
-      window.confirm(
-        `Changes submitted successfully as pull request #${result.pullRequest.number}.\n\nOpen the pull request on GitHub?`
-      );
-
-    if (openPullRequest) {
-      window.open(
-        result.pullRequest.url,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    }
+    alert(
+      "Your changes have been submitted for review."
+    );
   } catch (error) {
     console.error(error);
 
