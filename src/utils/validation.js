@@ -40,13 +40,6 @@ export function validatePublication(
     errors.push("Release date is invalid.");
   }
 
-  if (
-    isValidIsoDateTime(publication.release_date) &&
-    !isReleaseTime0930(publication.release_date)
-  ) {
-    errors.push("Release date must be set to 09:30.");
-  }
-
   if (!isValidDisplayDate(publication.display_date)) {
     errors.push("Display date is not in a supported format.");
   }
@@ -126,15 +119,6 @@ export function validatePublications(
       );
     }
 
-    if (
-      isValidIsoDateTime(publication.release_date) &&
-      !isReleaseTime0930(publication.release_date)
-    ) {
-      errors.push(
-        `Row ${rowNumber} release date is not set to 09:30.`
-      );
-    }
-
     if (!isValidDisplayDate(publication.display_date)) {
       errors.push(
         `Row ${rowNumber} has an invalid display date.`
@@ -165,14 +149,6 @@ function isValidIsoDateTime(value) {
   const date = new Date(value);
 
   return !Number.isNaN(date.getTime());
-}
-
-function isReleaseTime0930(value) {
-  const match = value.match(
-    /^\d{4}-\d{2}-\d{2}T09:30(?::00)?(?:Z|[+-]\d{2}:\d{2})?$/
-  );
-
-  return Boolean(match);
 }
 
 function isValidDisplayDate(value) {
