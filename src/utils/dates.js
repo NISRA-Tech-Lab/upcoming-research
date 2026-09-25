@@ -10,72 +10,135 @@ const EXACT_DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
 });
 
 export function getDateValues(type, values) {
+  const releaseTime =
+    values.releaseTime || "09:30";
+
   if (type === "exact") {
-    return getExactDateValues(values.exactDate);
+    return getExactDateValues(
+      values.exactDate,
+      releaseTime
+    );
   }
 
   if (type === "month") {
-    return getMonthValues(values.month);
+    return getMonthValues(
+      values.month,
+      releaseTime
+    );
   }
 
   if (type === "range") {
-    return getRangeValues(values.startMonth, values.endMonth);
+    return getRangeValues(
+      values.startMonth,
+      values.endMonth,
+      releaseTime
+    );
   }
 
-  throw new Error(`Unknown date type: ${type}`);
+  throw new Error(
+    `Unknown date type: ${type}`
+  );
 }
 
-function getExactDateValues(value) {
+function getExactDateValues(
+  value,
+  releaseTime
+) {
   if (!value) {
     return null;
   }
 
-  const date = parseDateInput(value);
+  const date =
+    parseDateInput(value);
 
   return {
-    displayDate: EXACT_DATE_FORMATTER.format(date),
-    releaseDate: toReleaseTimestamp(date, values.releaseTime)
+    displayDate:
+      EXACT_DATE_FORMATTER.format(date),
+
+    releaseDate:
+      toReleaseTimestamp(
+        date,
+        releaseTime
+      )
   };
 }
 
-function getMonthValues(value) {
+function getMonthValues(
+  value,
+  releaseTime
+) {
   if (!value) {
     return null;
   }
 
-  const { year, month } = parseMonthInput(value);
-  const lastDay = new Date(Date.UTC(year, month, 0));
+  const { year, month } =
+    parseMonthInput(value);
+
+  const lastDay =
+    new Date(
+      Date.UTC(year, month, 0)
+    );
 
   return {
-    displayDate: MONTH_FORMATTER.format(lastDay),
-    releaseDate: toReleaseTimestamp(lastDay, values.releaseTime)
+    displayDate:
+      MONTH_FORMATTER.format(lastDay),
+
+    releaseDate:
+      toReleaseTimestamp(
+        lastDay,
+        releaseTime
+      )
   };
 }
 
-function getRangeValues(startValue, endValue) {
+function getRangeValues(
+  startValue,
+  endValue,
+  releaseTime
+) {
   if (!startValue || !endValue) {
     return null;
   }
 
-  const start = parseMonthInput(startValue);
-  const end = parseMonthInput(endValue);
+  const start =
+    parseMonthInput(startValue);
 
-  const startDate = new Date(
-    Date.UTC(start.year, start.month - 1, 1)
-  );
+  const end =
+    parseMonthInput(endValue);
 
-  const endDate = new Date(
-    Date.UTC(end.year, end.month, 0)
-  );
+  const startDate =
+    new Date(
+      Date.UTC(
+        start.year,
+        start.month - 1,
+        1
+      )
+    );
+
+  const endDate =
+    new Date(
+      Date.UTC(
+        end.year,
+        end.month,
+        0
+      )
+    );
 
   if (endDate < startDate) {
-    throw new Error("End month must not be earlier than start month.");
+    throw new Error(
+      "End month must not be earlier than start month."
+    );
   }
 
   return {
     displayDate:
       `${MONTH_FORMATTER.format(startDate)} to ${MONTH_FORMATTER.format(endDate)}`,
-    releaseDate: toReleaseTimestamp(endDate, values.releaseTime)
+
+    releaseDate:
+      toReleaseTimestamp(
+        endDate,
+        releaseTime
+      )
   };
 }
 
@@ -91,17 +154,22 @@ function parseMonthInput(value) {
   return { year, month };
 }
 
-function toReleaseTimestamp(date, releaseTime) {
+function toReleaseTimestamp(
+  date,
+  releaseTime
+) {
   const year =
     date.getUTCFullYear();
 
   const month =
-    String(date.getUTCMonth() + 1)
-      .padStart(2, "0");
+    String(
+      date.getUTCMonth() + 1
+    ).padStart(2, "0");
 
   const day =
-    String(date.getUTCDate())
-      .padStart(2, "0");
+    String(
+      date.getUTCDate()
+    ).padStart(2, "0");
 
   const time =
     releaseTime || "09:30";
