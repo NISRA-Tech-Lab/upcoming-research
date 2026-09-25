@@ -62,6 +62,11 @@ export function initialisePublicationForm({ onSubmit }) {
     input.addEventListener("change", updateDatePreview);
   });
 
+  releaseTimeInput.addEventListener(
+  "input",
+  updateDatePreview
+);
+
   publicationForm.addEventListener("submit", handleSubmit);
 }
 
