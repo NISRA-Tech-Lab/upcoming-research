@@ -1,6 +1,7 @@
 import {
   getDateValues,
-  parseDisplayDate
+  parseDisplayDate,
+  getReleaseTime
 } from "../utils/dates.js";
 
 import { validatePublication } from "../utils/validation.js";
@@ -31,6 +32,9 @@ const displayDatePreview =
 
 const releaseDatePreview =
   document.querySelector("#release-date-preview");
+
+const releaseTimeInput =
+  document.querySelector("#release-time");
 
 let editingIndex = null;
 let submitHandler = null;
@@ -64,6 +68,8 @@ export function initialisePublicationForm({ onSubmit }) {
 export function openAddForm() {
   editingIndex = null;
 
+  releaseTimeInput.value = "09:30";
+
   modalTitle.textContent = "Add publication";
 
   publicationForm.reset();
@@ -91,6 +97,7 @@ export function openEditForm(publication, index) {
   urlInput.value = publication.url;
   organisationInput.value = publication.org;
   statusInput.value = publication.status;
+  releaseTimeInput.value = getReleaseTime(publication.release_date);
 
   const parsedDate = parseDisplayDate(publication.display_date);
 
@@ -214,7 +221,8 @@ function getCurrentDateValues() {
       exactDate: exactDateInput.value,
       month: monthInput.value,
       startMonth: rangeStartInput.value,
-      endMonth: rangeEndInput.value
+      endMonth: rangeEndInput.value,
+      releaseTime: releaseTimeInput.value
     }
   );
 }

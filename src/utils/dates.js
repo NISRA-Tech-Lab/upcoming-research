@@ -34,7 +34,7 @@ function getExactDateValues(value) {
 
   return {
     displayDate: EXACT_DATE_FORMATTER.format(date),
-    releaseDate: toReleaseTimestamp(date)
+    releaseDate: toReleaseTimestamp(date, values.releaseTime)
   };
 }
 
@@ -48,7 +48,7 @@ function getMonthValues(value) {
 
   return {
     displayDate: MONTH_FORMATTER.format(lastDay),
-    releaseDate: toReleaseTimestamp(lastDay)
+    releaseDate: toReleaseTimestamp(lastDay, values.releaseTime)
   };
 }
 
@@ -75,7 +75,7 @@ function getRangeValues(startValue, endValue) {
   return {
     displayDate:
       `${MONTH_FORMATTER.format(startDate)} to ${MONTH_FORMATTER.format(endDate)}`,
-    releaseDate: toReleaseTimestamp(endDate)
+    releaseDate: toReleaseTimestamp(endDate, values.releaseTime)
   };
 }
 
@@ -91,12 +91,22 @@ function parseMonthInput(value) {
   return { year, month };
 }
 
-function toReleaseTimestamp(date) {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
+function toReleaseTimestamp(date, releaseTime) {
+  const year =
+    date.getUTCFullYear();
 
-  return `${year}-${month}-${day}T09:30:00Z`;
+  const month =
+    String(date.getUTCMonth() + 1)
+      .padStart(2, "0");
+
+  const day =
+    String(date.getUTCDate())
+      .padStart(2, "0");
+
+  const time =
+    releaseTime || "09:30";
+
+  return `${year}-${month}-${day}T${time}:00Z`;
 }
 
 const MONTHS = [
@@ -184,4 +194,20 @@ function getMonthIndex(monthName) {
   }
 
   return monthIndex;
+}
+
+export function getReleaseTime(releaseDate) {
+  if (!releaseDate) {
+    return "09:30";
+  }
+
+  const match = releaseDate.match(
+    /T(\d{2}):(\d{2}):\d{2}Z$/
+  );
+
+  if (!match) {
+    return "09:30";
+  }
+
+  return `${match[1]}:${match[2]}`;
 }
